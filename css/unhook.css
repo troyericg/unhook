@@ -1,0 +1,25 @@
+
+.main {
+	position: relative;
+	width: 100%;
+	max-width: 970px;
+	margin: 0 auto;
+}
+
+.uh-container {
+	position: relative;
+	width: 100%;
+	min-height: 800px;
+	margin-bottom: 80px;
+	background-color: #f2f2f2;
+}
+
+
+.uh-element {
+	position: relative;
+	width: 100%;
+	max-width: 970px;
+	margin: 0 auto;
+	height: 80px;
+	background-color: magenta;
+}
