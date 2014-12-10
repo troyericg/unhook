@@ -12,8 +12,8 @@
 			topOfPage: 0,
 			bottomOfContainer: 0,
 			leftInset: null,
-			topPadding: 42,
-			bottomPadding: 42
+			topPadding: 0,
+			bottomPadding: 0
 		};
 
 	function Plugin(element, options){
