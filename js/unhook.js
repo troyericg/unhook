@@ -13,7 +13,8 @@
 			bottomOfContainer: 0,
 			leftInset: null,
 			topPadding: 0,
-			bottomPadding: 0
+			bottomPadding: 0,
+			scrollClass: { scrollable: "uh-scrollable", scrollDown: "down-scroll" }
 		};
 
 	function Plugin(element, options){
@@ -21,7 +22,6 @@
 		this.opts = $.extend(defaults, options);
 		this._defaults = defaults;
 		this._name = pluginName;
-		// play hooky 
 		this.init();
 	};
 
@@ -32,43 +32,58 @@
 	Plugin.prototype.setScrollEvent = function(settings){
 		var elem               = this.element,
 			$container         = (settings.container) ? $(settings.container) : $(this.element).parent(),
+			$window			   = $(window),
 			topOfPage          = settings.topOfPage,
 			bottomOfContainer  = settings.bottomOfContainer,
 			leftInset          = settings.leftInset + "px" || 'auto',
 			paddingTop         = settings.topPadding,
 			paddingBottom      = settings.bottomPadding,
 			pixelPaddingTop    = paddingTop + "px",
-			pixelPaddingBottom = paddingBottom + "px";
+			pixelPaddingBottom = paddingBottom + "px",
+			scrollClass		   = settings.scrollClass.scrollDown;
 
-		$container.addClass("uh-scrollable");
+		$container.addClass(settings.scrollClass.scrollable);
 
-		$(window).scroll(function(){
+		$window.scroll(function(){
 			var $win = $(this);
 
 			$container.each(function(){
 				var $this = $(this),
-					target = $($(this).find(elem)),
+					target = $($this.find(elem)),
 					targetHeight = target.innerHeight(),
-					containerTop = $(this).offset().top,
-					containerBottom = $(this).position().top + $(this).innerHeight();
+					containerTop = $this.offset().top,
+					containerBottom = $this.position().top + $this.innerHeight();
 
 				// From top of page ... 
 				if ( $win.scrollTop() + paddingTop >= $this.offset().top ) {
-					target.css({'position':'fixed','top': pixelPaddingTop, 'bottom':'auto', left: leftInset })
-						.addClass("down-scroll");;
+					setFixedFromTop(target, scrollClass);
 				} 
 				// ... to bottom of container ...
 				if ( $win.scrollTop() >= containerBottom - paddingTop - targetHeight ) {
-					target.css({'position':'absolute', 'top':'auto', 'bottom': pixelPaddingBottom, left: 'auto' });
+					setFixedToBottom(target);
 				} 
 				// .. Back to top of page
-				else if ( target.hasClass("down-scroll") && $win.scrollTop() <= $this.offset().top ) {
-					target.css({'position':'absolute', 'top': topOfPage, 'bottom':'auto', left: leftInset })
-						.removeClass("down-scroll");
+				else if ( target.hasClass(scrollClass) && $win.scrollTop() <= $this.offset().top ) {
+					setFixedFromBottom(target, scrollClass);
 				}
 			});
 			
 		});
+
+		// Trigger unhook if page refreshes 
+		if ($window.scrollTop() > 20) {
+			$window.trigger("scroll");
+		};
+
+		function setFixedFromTop(target, scrollClass){
+			target.css({'position':'fixed','top': pixelPaddingTop, 'bottom':'auto', left: leftInset }).addClass(scrollClass);
+		};
+		function setFixedToBottom(target){
+			target.css({'position':'absolute', 'top':'auto', 'bottom': pixelPaddingBottom, left: 'auto' });
+		};
+		function setFixedFromBottom(target, scrollClass){
+			target.css({'position':'absolute', 'top': topOfPage, 'bottom':'auto', left: leftInset }).removeClass(scrollClass);
+		};
 	};
 
 	$.fn[pluginName] = function (options) {
