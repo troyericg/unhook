@@ -59,8 +59,6 @@
 				} 
 				// ... to bottom of container ...
 				if ( $win.scrollTop() >= containerBottom - paddingTop - targetHeight ) {
-					console.log("scrollTop: " + $win.scrollTop())
-					console.log("Bottom: " + containerBottom);
 					target.css({'position':'absolute', 'top':'auto', 'bottom': pixelPaddingBottom, left: 'auto' });
 				} 
 				// .. Back to top of page
@@ -85,6 +83,6 @@
 
 
 // IMPLEMENTATION: 
-// $(".uh-element").unHook();
+// $(".uh-element").unhook();
 
 
