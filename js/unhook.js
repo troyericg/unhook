@@ -1,103 +1,113 @@
 // Name:         unhooker.js
 // Purpose:      Controlled fixies.
-// Dependencies: jQuery, Love 
+// Dependencies: JUST LOVE. 
 // Developer:    Troy Griggs 
 
-;(function($, undefined) {
+var defaults = {
+	elem: null,
+	container: null,
+	topOfPage: 0,
+	bottomOfContainer: 0,
+	leftInset: null,
+	topPadding: 0,
+	bottomPadding: 0,
+	scrollClass: { scrollable: "uh-scrollable", scrollDown: "down-scroll" },
+	containerClass: "uh-container"
+};
 
-	var pluginName = 'unhook',
-		defaults = {
-			elem: null,
-			container: null,
-			topOfPage: 0,
-			bottomOfContainer: 0,
-			leftInset: null,
-			topPadding: 0,
-			bottomPadding: 0,
-			scrollClass: { scrollable: "uh-scrollable", scrollDown: "down-scroll" }
+var setScrollEvent = function(settings){
+	var settings = settings || defaults;
+	var elem               = settings.elem,
+		win				   = window,
+		topOfPage          = settings.topOfPage,
+		bottomOfContainer  = settings.bottomOfContainer,
+		leftInset          = (settings.leftInset) ? settings.leftInset + "px" : "auto",
+		paddingTop         = settings.topPadding,
+		paddingBottom      = settings.bottomPadding,
+		pixelPaddingTop    = paddingTop + "px",
+		pixelPaddingBottom = paddingBottom + "px",
+		scrollClass		   = settings.scrollClass.scrollDown;
+
+	[].forEach.call(settings.elem, function(el){
+		el.parentNode.className += (" " + settings.scrollClass.scrollable + " " + settings.containerClass);
+	});
+
+	var containers = document.querySelectorAll("." + settings.containerClass);
+
+	setWindowScroll(win);
+
+	function setWindowScroll(el){
+		if (el.addEventListener) {
+			el.addEventListener("scroll", scrollEvents, false);
+		} else if (el.attachEvent) {
+			el.attachEvent("onscroll", scrollEvents);
 		};
-
-	function Plugin(element, options){
-		this.element = element;
-		this.opts = $.extend(defaults, options);
-		this._defaults = defaults;
-		this._name = pluginName;
-		this.init();
 	};
 
-	Plugin.prototype.init = function(){
-		this.setScrollEvent(this.opts);
-	};
-	
-	Plugin.prototype.setScrollEvent = function(settings){
-		var elem               = this.element,
-			$container         = (settings.container) ? $(settings.container) : $(this.element).parent(),
-			$window			   = $(window),
-			topOfPage          = settings.topOfPage,
-			bottomOfContainer  = settings.bottomOfContainer,
-			leftInset          = settings.leftInset + "px" || 'auto',
-			paddingTop         = settings.topPadding,
-			paddingBottom      = settings.bottomPadding,
-			pixelPaddingTop    = paddingTop + "px",
-			pixelPaddingBottom = paddingBottom + "px",
-			scrollClass		   = settings.scrollClass.scrollDown;
+	function scrollEvents(){
+		var curWin = this;
+		[].forEach.call(containers, function(container){
+			for (var i = 0; i < container.childNodes.length; i++) {
+				if (container.childNodes[i].className && container.childNodes[i].className.match(settings.scrollClass.scrollable) !== undefined) {
+					var target = container.childNodes[i],
+						targetHeight = target.innerHeight,
+						containerRect = container.getBoundingClientRect(),
+						containerTop = container.offsetTop,
+						containerBottom = containerRect.top + container.clientHeight,
+						scrollTop = curWin.pageYOffset || document.documentElement.scrollTop;
 
-		$container.addClass(settings.scrollClass.scrollable);
-
-		$window.scroll(function(){
-			var $win = $(this);
-
-			$container.each(function(){
-				var $this = $(this),
-					target = $($this.find(elem)),
-					targetHeight = target.innerHeight(),
-					containerTop = $this.offset().top,
-					containerBottom = $this.position().top + $this.innerHeight();
-
-				// From top of page ... 
-				if ( $win.scrollTop() + paddingTop >= $this.offset().top ) {
-					setFixedFromTop(target, scrollClass);
-				} 
-				// ... to bottom of container ...
-				if ( $win.scrollTop() >= containerBottom - paddingTop - targetHeight ) {
-					setFixedToBottom(target);
-				} 
-				// .. Back to top of page
-				else if ( target.hasClass(scrollClass) && $win.scrollTop() <= $this.offset().top ) {
-					setFixedFromBottom(target, scrollClass);
+					// From top of page ...
+					if ( scrollTop + paddingTop >= containerTop ) {
+						setFixedFromTop(target, scrollClass);
+					} 
+					// ... to bottom of container ...
+					if ( scrollTop >= containerBottom - paddingTop - targetHeight ) {
+						setFixedToBottom(target);
+					} 
+					// .. Back to top of page
+					else if ( target.className.match(scrollClass) && scrollTop <= containerTop ) {
+						console.log("what is happening?");
+						setFixedFromBottom(target, scrollClass);
+					}
+					break;
 				}
-			});
-			
+			};
 		});
-
-		// Trigger unhook if page refreshes 
-		if ($window.scrollTop() > 20) {
-			$window.trigger("scroll");
-		};
-
-		function setFixedFromTop(target, scrollClass){
-			target.css({'position':'fixed','top': pixelPaddingTop, 'bottom':'auto', left: leftInset }).addClass(scrollClass);
-		};
-		function setFixedToBottom(target){
-			target.css({'position':'absolute', 'top':'auto', 'bottom': pixelPaddingBottom, left: 'auto' });
-		};
-		function setFixedFromBottom(target, scrollClass){
-			target.css({'position':'absolute', 'top': topOfPage, 'bottom':'auto', left: leftInset }).removeClass(scrollClass);
-		};
 	};
 
-	$.fn[pluginName] = function (options) {
-		return this.each(function(){
-			if (!$.data(this, 'plugin_' + pluginName)) {
-				$.data(this, 'plugin_' + pluginName, new Plugin( this, options ));
-			}
-		});
-	}
-})(jQuery);
+	// Trigger unhook if page refreshes 
+	// if (win.scrollTop() > 20) {
+	// 	win.trigger("scroll");
+	// };
 
+	function setFixedFromTop(target, scrollClass){
+		// console.log("setFixedFromTop");
+		setStyles(target, {'pos':'fixed','top': pixelPaddingTop, 'bottom':'auto', 'left': leftInset });
+		var reg = new RegExp(scrollClass, "g");
+		target.className = target.className.replace(reg, "");
+		target.className += " " + scrollClass;
+	};
+	function setFixedToBottom(target){
+		// console.log("setFixedToBottom");
+		setStyles(target, {'pos': 'absolute','top': 'auto', 'bottom': pixelPaddingBottom, 'left': 'auto' });
+	};
+	function setFixedFromBottom(target, scrollClass){
+		console.log("setFixedFromBottom");
+		setStyles(target, {'pos': 'absolute','top': topOfPage, 'bottom':'auto', 'left': leftInset });
+		var reg = new RegExp(scrollClass, "g");
+		target.className = target.className.replace(reg, "");
+	};
 
+	function setStyles(target, set){
+		var styleObj = 'position: ' + set['pos'] + ';' +
+					   'top: ' + set['top'] + ';' +
+					   'bottom: ' + set['bottom'] + ';' +
+					   'left: ' + set['left'] + ';';
 
-// IMPLEMENTATION: 
-// $(".uh-element").unhook();
-
-
+		if( typeof( target.style.cssText ) != 'undefined' ) {
+			target.style.cssText += " " + styleObj;
+		} else {
+			target.setAttribute('style', styleObj);
+		}
+	};
+};
