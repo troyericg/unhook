@@ -26,3 +26,8 @@ body {
 	height: 80px;
 	background-color: magenta;
 }
+
+.uhx-element {
+	height: 200px;
+	background-color: green;
+}

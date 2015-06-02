@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>NO JQUERY | Unhook</title>
+    <title>Unhook | No JQuery Version</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="css/unhook.css">
@@ -24,30 +24,31 @@
       </div>
       <div class="uh-container">
         <div class="uh-element">NAVIGATION 4</div>
+        <div class="uhx-element">Navigation Alt</div>
       </div>
       <div class="uh-container">
         <div class="uh-element">NAVIGATION 5</div>
       </div>
     </div>
 
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script> -->
     <!--  UNHOOKING JS  -->
     <script type="text/javascript" src="js/unhook.js"></script>
     <script type="text/javascript">
       // IMPLEMENTATION
       var defaults = {
-        elem: document.querySelectorAll(".uh-element"),
         container: null,
         topOfPage: 0,
         bottomOfContainer: 0,
         leftInset: null,
-        topPadding: 12,
-        bottomPadding: 0,
+        paddingTop: 12,
+        paddingBottom: 0,
         scrollClass: { scrollable: "uh-scrollable", scrollDown: "down-scroll" },
-        containerClass: "uh-container"
+        containerClass: "uh-container",
+        targetClass: "uh-element"
       };
 
-      setScrollEvent(defaults);
+      var h = new Unhook(defaults);
+
     </script>
   </body>
 </html>
