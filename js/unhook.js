@@ -3,8 +3,6 @@
 // Dependencies: JUST LOVE. 
 // Developer:    Troy Griggs 
 
-// Default settings (can be overridden on init) 
-
 function Unhook(settings){
 
 	var unhook = unhook || {};
@@ -69,6 +67,7 @@ function Unhook(settings){
 
 		function scrollEvents(){
 			var curWin = this,
+				scrollTop = curWin.pageYOffset || document.documentElement.scrollTop,
 				containers = document.querySelectorAll("." + options.containerClass);
 
 			[].forEach.call(containers, function(container, i){
@@ -79,12 +78,13 @@ function Unhook(settings){
 							containerRect = container.getBoundingClientRect(),
 							containerTop = container.offsetTop,
 							containerBottom = containerTop + container.clientHeight,
-							scrollTop = curWin.pageYOffset || document.documentElement.scrollTop,
 							pastTopOfContainer = Boolean(scrollTop + options.paddingTop >= containerTop),
 							atBottomOfContainer = Boolean(scrollTop >= containerBottom - options.paddingTop - targetHeight),
 							backToTopOfContainer = Boolean(target.className.match(options.targetClass) && scrollTop <= containerTop);
 
 						if (pastTopOfContainer) {
+							console.log("scrollTop: " + scrollTop);
+							console.log("containerTop: " + containerTop);
 							setFixed("fromTop", target, options.scrollClass);
 						}
 						if (atBottomOfContainer) {
@@ -132,5 +132,4 @@ function Unhook(settings){
 	};
 
 	return unhook.init(settings);
-
 };
