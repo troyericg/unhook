@@ -47,10 +47,10 @@ function Unhook(settings){
 
 		[].forEach.call(options.elem, function(el, i){
 			var parentClasses = el.parentNode.className;
-			if(!parentClasses.match(options.containerClass)){
-				parentClasses = " " + options.scrollClasses.scrollable + " " + options.containerClass + " index-" + i;
-			} else {
+			if(isMatch(parentClasses, options.containerClass)){
 				parentClasses = " " + options.scrollClasses.scrollable + " index-" + i;
+			} else {
+				parentClasses = " " + options.scrollClasses.scrollable + " " + options.containerClass + " index-" + i;
 			};
 			el.parentNode.className += parentClasses;
 		});
@@ -72,7 +72,7 @@ function Unhook(settings){
 
 			[].forEach.call(containers, function(container, i){
 				for (var i = 0; i < container.childNodes.length; i++) {
-					if ( container.childNodes[i].className && Boolean(container.childNodes[i].className.match(options.targetClass)) ) {
+					if ( container.childNodes[i].className && isMatch(container.childNodes[i], options.targetClass) ) {
 						var target = container.childNodes[i],
 							targetHeight = target.clientHeight,
 							containerRect = container.getBoundingClientRect(),
@@ -80,11 +80,9 @@ function Unhook(settings){
 							containerBottom = containerTop + container.clientHeight,
 							pastTopOfContainer = Boolean(scrollTop + options.paddingTop >= containerTop),
 							atBottomOfContainer = Boolean(scrollTop >= containerBottom - options.paddingTop - targetHeight),
-							backToTopOfContainer = Boolean(target.className.match(options.targetClass) && scrollTop <= containerTop);
+							backToTopOfContainer = Boolean(isMatch(target, options.targetClass) && scrollTop <= containerTop);
 
 						if (pastTopOfContainer) {
-							console.log("scrollTop: " + scrollTop);
-							console.log("containerTop: " + containerTop);
 							setFixed("fromTop", target, options.scrollClass);
 						}
 						if (atBottomOfContainer) {
@@ -121,7 +119,7 @@ function Unhook(settings){
 						   'top: ' + set['top'] + ';' +
 						   'bottom: ' + set['bottom'] + ';' +
 						   'left: ' + set['left'] + ';';
-			if (target.className.match(options.scrollClass)) {
+			if (isMatch(target, options.scrollClass)) {
 				if (typeof( target.style.cssText ) != 'undefined') {
 					target.style.cssText += " " + styleObj;
 				} else {
@@ -129,6 +127,10 @@ function Unhook(settings){
 				}
 			}
 		};
+	};
+
+	function isMatch(target, test){
+		return (target.className) ? Boolean(target.className.match(test)) : false;
 	};
 
 	return unhook.init(settings);
